@@ -83,8 +83,9 @@ body {
 
 .user-name {
     font-size: 12px;
+    font-weight: 700;
     color: #5b6cf7;
-    text-decoration: underline;
+    text-decoration: none;
     max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;

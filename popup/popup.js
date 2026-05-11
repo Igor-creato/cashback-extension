@@ -84,10 +84,12 @@ async function init() {
 
     // Имя пользователя → личный кабинет.
     // chrome.tabs.create открывает в новой вкладке и закрывает popup —
-    // надёжнее target="_blank" для extension popup.
+    // надёжнее target="_blank" для extension popup. isValidRedirectUrl
+    // отсекает javascript:/data: на случай если account_url из /me был
+    // подменён скомпрометированным сервером (defense-in-depth).
     els.userName.addEventListener('click', (e) => {
         const href = els.userName.getAttribute('href');
-        if (!href || href === '#') return;
+        if (!href || href === '#' || !isValidRedirectUrl(href)) return;
         e.preventDefault();
         chrome.tabs.create({ url: href });
     });
@@ -389,7 +391,7 @@ async function tryRenderPromocodesForStore(storeInfo) {
         }
     } catch (err) {
         // eslint-disable-next-line no-console
-        console.warn('[CB] fetchPromocodes failed, fallback to transactions', err);
+        console.warn('[CB] fetchPromocodes failed:', err && err.message);
     }
     showTransactionsSection();
     return false;
@@ -476,11 +478,12 @@ function bindPromoCopyHandlers() {
 function bindPromoGotoHandlers() {
     // chrome.tabs.create открывает в новой вкладке и закрывает popup
     // надёжнее, чем target="_blank" — для extension popup поведение
-    // последнего нестабильно.
+    // последнего нестабильно. isValidRedirectUrl блокирует javascript:/data:
+    // на случай скомпрометированного redirect_url из ответа сервера.
     els.promocodesList.querySelectorAll('.promo-card__goto').forEach((a) => {
         a.addEventListener('click', (e) => {
             const href = a.getAttribute('href');
-            if (!href || href === '#') return;
+            if (!href || href === '#' || !isValidRedirectUrl(href)) return;
             e.preventDefault();
             chrome.tabs.create({ url: href });
         });
