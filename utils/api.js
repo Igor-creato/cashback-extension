@@ -208,12 +208,18 @@ const CashbackAPI = {
     /**
      * Получить транзакции пользователя.
      *
+     * Параметр на сервер уходит как `limit`, НЕ `per_page` — тема WoodMart
+     * на любом запросе с $_GET['per_page'] (включая REST!) шлёт
+     * Set-Cookie: shop_per_page=<value>; path=/, что протекает в storefront
+     * (страница каталога магазинов) и форсит «N карточек на страницу» вместо
+     * настроенного администратором значения. См. issue: shop_per_page leak.
+     *
      * @param {number} page     - Номер страницы
      * @param {number} perPage  - Записей на странице
      * @returns {Promise<Object>}
      */
     async fetchTransactions(page = 1, perPage = 5) {
-        return this.request('/me/transactions', { page, per_page: perPage });
+        return this.request('/me/transactions', { page, limit: perPage });
     },
 
     /**
