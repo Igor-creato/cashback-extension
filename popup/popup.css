@@ -1,0 +1,570 @@
+/* ─── Reset & Base ─── */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 360px;
+    min-height: 200px;
+    max-height: 520px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    background: #ffffff;
+    color: #242424;
+    overflow-y: auto;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.screen {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ─── Spinner ─── */
+
+#loading {
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #83b735;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ─── Header ─── */
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #f5f5f5;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-icon {
+    font-size: 20px;
+}
+
+.logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #242424;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-name {
+    font-size: 12px;
+    color: #707070;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ─── Refresh Button ─── */
+
+.btn-refresh {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: #909090;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    padding: 0;
+    line-height: 1;
+}
+
+.btn-refresh:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: #242424;
+}
+
+.btn-refresh:active {
+    transform: scale(0.9);
+}
+
+.btn-refresh.spinning {
+    animation: refresh-spin 0.8s linear infinite;
+    pointer-events: none;
+    color: #83b735;
+}
+
+@keyframes refresh-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ─── Auth Screen ─── */
+
+.auth-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 24px;
+    gap: 16px;
+}
+
+.auth-icon {
+    font-size: 48px;
+    opacity: 0.6;
+}
+
+.auth-text {
+    text-align: center;
+    color: #707070;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* ─── Buttons ─── */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-primary {
+    background: #83b735;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #74a32f;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.btn-activate {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: #fff;
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 10px;
+}
+
+.btn-activate:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+}
+
+/* Кнопка повторной активации (competing) — оранжевая */
+.btn-reactivate {
+    background: linear-gradient(135deg, #f39c12, #d68910);
+    color: #fff;
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 10px;
+}
+
+.btn-reactivate:hover {
+    background: linear-gradient(135deg, #d68910, #b7770d);
+}
+
+.btn-activate.loading {
+    pointer-events: none;
+}
+
+.btn-activate.loading::after {
+    content: '';
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-left: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+/* ─── Balance ─── */
+
+.balance-section {
+    padding: 12px 16px;
+}
+
+.balance-card {
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.balance-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.balance-label {
+    font-size: 13px;
+    color: #707070;
+}
+
+.balance-amount {
+    font-size: 22px;
+    font-weight: 700;
+    color: #27ae60;
+}
+
+.btn-withdraw {
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #27ae60;
+    color: #fff;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.btn-withdraw:hover {
+    background: #219a52;
+}
+
+.balance-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.balance-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.balance-sub-label {
+    font-size: 11px;
+    color: #909090;
+}
+
+.balance-sub-amount {
+    font-size: 14px;
+    font-weight: 600;
+    color: #242424;
+}
+
+/* ─── Cashback Section ─── */
+
+.cashback-section {
+    padding: 0 16px 12px;
+}
+
+.cashback-card {
+    border-radius: 12px;
+    padding: 14px;
+}
+
+.cashback-available {
+    background: #f5f5f5;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.cashback-activated {
+    background: #f5f5f5;
+    border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.cashback-none {
+    background: #f5f5f5;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Competing: активация сброшена чужим сайтом */
+.cashback-competing {
+    background: #f5f5f5;
+    border: 1px solid rgba(243, 156, 18, 0.35);
+}
+
+/* Expired: время активации истекло */
+.cashback-expired {
+    background: #f5f5f5;
+    border: 1px solid rgba(127, 140, 141, 0.3);
+}
+
+.cashback-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.cashback-badge {
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+.cashback-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cashback-store {
+    font-size: 14px;
+    font-weight: 600;
+    color: #242424;
+}
+
+.cashback-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #e74c3c;
+}
+
+.cashback-status-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #27ae60;
+}
+
+.cashback-status-text.competing {
+    color: #f35212;
+}
+
+.cashback-status-text.expired {
+    color: #7f8c8d;
+}
+
+.cashback-hint {
+    font-size: 12px;
+    color: #707070;
+}
+
+.cashback-timer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px;
+    background: rgba(39, 174, 96, 0.1);
+    border-radius: 8px;
+    margin-top: 4px;
+}
+
+.timer-label {
+    font-size: 12px;
+    color: #707070;
+}
+
+.timer-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #27ae60;
+}
+
+.cashback-none-text {
+    font-size: 13px;
+    color: #909090;
+}
+
+.link-stores {
+    font-size: 13px;
+    color: #83b735;
+    text-decoration: none;
+}
+
+.link-stores:hover {
+    text-decoration: underline;
+}
+
+/* ─── Transactions ─── */
+
+.transactions-section {
+    padding: 0 16px 16px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #707070;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.transactions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.transactions-empty {
+    text-align: center;
+    padding: 16px;
+    color: #909090;
+    font-size: 13px;
+}
+
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+.transaction-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.transaction-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #242424;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.transaction-date {
+    font-size: 11px;
+    color: #909090;
+}
+
+.transaction-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    flex-shrink: 0;
+    margin-left: 12px;
+}
+
+.transaction-amount {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.transaction-amount.positive {
+    color: #27ae60;
+}
+
+.transaction-status {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.status-waiting {
+    background: rgba(241, 196, 15, 0.15);
+    color: #c29d0b;
+}
+
+.status-completed {
+    background: rgba(52, 152, 219, 0.15);
+    color: #3498db;
+}
+
+.status-balance {
+    background: rgba(39, 174, 96, 0.15);
+    color: #27ae60;
+}
+
+.status-declined {
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+}
+
+.status-hold {
+    background: rgba(155, 89, 182, 0.15);
+    color: #9b59b6;
+}
+
+/* ─── Scrollbar ─── */
+
+body::-webkit-scrollbar {
+    width: 4px;
+}
+
+body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+}

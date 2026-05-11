@@ -1,0 +1,21 @@
+# Build artifacts
+*.crx
+*.zip
+*.pem
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (если появится сборка)
+node_modules/
+package-lock.json
+
+# Логи
+*.log

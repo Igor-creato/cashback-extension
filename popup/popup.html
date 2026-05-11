@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Кэшбэк Сервис Савелло Клуб</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <!-- Загрузка -->
+    <div id="loading" class="screen">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Не авторизован -->
+    <div id="screen-auth" class="screen hidden">
+      <div class="header">
+        <div class="logo">
+          <img src="../icons/savello-club-logo.svg" width="32" height="32" alt="Савелло Клуб" />
+          <!-- <span class="logo-icon">&#128176;</span> -->
+          <span class="logo-text">Кэшбэк Сервис Савелло Клуб</span>
+        </div>
+      </div>
+      <div class="auth-content">
+        <div class="auth-icon">&#128274;</div>
+        <p class="auth-text">Войдите в личный кабинет для получения кэшбэка</p>
+        <button id="btn-login" class="btn btn-primary btn-full">Войти</button>
+      </div>
+    </div>
+
+    <!-- Основной экран (авторизован) -->
+    <div id="screen-main" class="screen hidden">
+      <!-- Header -->
+      <div class="header">
+        <div class="logo">
+          <img src="../icons/savello-club-logo.svg" width="32" height="32" alt="Савелло Клуб" />
+          <!-- <span class="logo-icon">&#128176;</span> -->
+          <span class="logo-text">Кэшбэк Сервис Савелло Клуб</span>
+        </div>
+        <div class="header-actions">
+          <button id="btn-refresh" class="btn-refresh" title="Обновить список магазинов">
+            &#8635;
+          </button>
+          <span id="user-name" class="user-name"></span>
+        </div>
+      </div>
+
+      <!-- Баланс -->
+      <div class="balance-section">
+        <div class="balance-card">
+          <div class="balance-main">
+            <span class="balance-label">Доступно</span>
+            <span id="balance-available" class="balance-amount">0 &#8381;</span>
+            <button id="btn-withdraw" class="btn btn-withdraw hidden">Вывести</button>
+          </div>
+          <div class="balance-row">
+            <div class="balance-item">
+              <span class="balance-sub-label">В ожидании</span>
+              <span id="balance-pending" class="balance-sub-amount">0 &#8381;</span>
+            </div>
+            <div class="balance-item">
+              <span class="balance-sub-label">Выплачено</span>
+              <span id="balance-paid" class="balance-sub-amount">0 &#8381;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Блок кэшбэка для текущего сайта -->
+      <div id="cashback-section" class="cashback-section hidden">
+        <!-- Состояние: кэшбэк доступен (idle — красная иконка) -->
+        <div id="cashback-available" class="cashback-card cashback-available hidden">
+          <div class="cashback-info">
+            <span class="cashback-badge">&#128293;</span>
+            <div class="cashback-details">
+              <span class="cashback-store" id="store-name"></span>
+              <span class="cashback-value" id="cashback-value"></span>
+            </div>
+          </div>
+          <button id="btn-activate" class="btn btn-activate">Активировать кэшбэк</button>
+        </div>
+
+        <!-- Состояние: кэшбэк активирован (active — зелёная иконка) -->
+        <div id="cashback-activated" class="cashback-card cashback-activated hidden">
+          <div class="cashback-info">
+            <span class="cashback-badge">&#9989;</span>
+            <div class="cashback-details">
+              <span class="cashback-status-text">Кэшбэк активирован!</span>
+              <span class="cashback-hint">Делайте покупки — кэшбэк начислится автоматически</span>
+            </div>
+          </div>
+          <div class="cashback-timer">
+            <span class="timer-label">Активен ещё</span>
+            <span id="timer-value" class="timer-value">30 мин</span>
+          </div>
+        </div>
+
+        <!-- Состояние: кэшбэк сброшен конкурирующей ссылкой (competing — красная иконка) -->
+        <div id="cashback-competing" class="cashback-card cashback-competing hidden">
+          <div class="cashback-info">
+            <span class="cashback-badge">&#9888;&#65039;</span>
+            <div class="cashback-details">
+              <span class="cashback-store" id="competing-store-name"></span>
+              <span class="cashback-status-text competing"
+                ><strong
+                  >Вы перешли через другого партнёра, чтобы получить кэшбэк у нас, активируйте его
+                  снова.</strong
+                ></span
+              >
+              <span class="cashback-status-text competing"><strong></strong></span>
+            </div>
+          </div>
+          <button id="btn-reactivate" class="btn btn-reactivate">Активировать снова</button>
+        </div>
+
+        <!-- Состояние: время активации истекло (expired — красная иконка) -->
+        <div id="cashback-expired" class="cashback-card cashback-expired hidden">
+          <div class="cashback-info">
+            <span class="cashback-badge">&#128337;</span>
+            <div class="cashback-details">
+              <span class="cashback-store" id="expired-store-name"></span>
+              <span class="cashback-status-text expired">Время активации истекло</span>
+              <span class="cashback-hint">Активируйте кэшбэк снова</span>
+            </div>
+          </div>
+          <button id="btn-reactivate-expired" class="btn btn-activate">Активировать снова</button>
+        </div>
+
+        <!-- Состояние: нет кэшбэка (серая иконка) -->
+        <div id="cashback-none" class="cashback-card cashback-none hidden">
+          <span class="cashback-none-text">На этом сайте кэшбэк недоступен</span>
+          <a id="link-stores" class="link-stores" href="#">Все магазины с кэшбэком &#8594;</a>
+        </div>
+      </div>
+
+      <!-- Транзакции -->
+      <div class="transactions-section">
+        <div class="section-header">
+          <span class="section-title">Последние покупки</span>
+        </div>
+        <div id="transactions-list" class="transactions-list">
+          <div class="transactions-empty">Нет транзакций</div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../utils/config.js"></script>
+    <script src="../utils/api.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

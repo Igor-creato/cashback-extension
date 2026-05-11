@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "Кэшбэк Сервис Савелло Клуб",
+    "description": "Extension name"
+  },
+  "appDescription": {
+    "message": "Получайте кэшбэк с покупок в интернет-магазинах. Автоматическое определение магазинов, активация кэшбэка одним кликом.",
+    "description": "Extension description"
+  }
+}

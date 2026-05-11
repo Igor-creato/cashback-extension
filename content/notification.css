@@ -1,0 +1,175 @@
+/* ─── Уведомление о кэшбэке (инжектируется на страницы магазинов) ─── */
+
+#cashback-ext-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2147483647;
+    width: 360px;
+    max-width: calc(100vw - 40px);
+    background: #1a1d23;
+    border: 1px solid rgba(231, 76, 60, 0.4);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    color: #e4e6ea;
+    overflow: hidden;
+    transform: translateY(120%);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+#cashback-ext-notification.visible {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+#cashback-ext-notification.hiding {
+    transform: translateY(120%);
+    opacity: 0;
+}
+
+/* Заголовок */
+.cashback-ext-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px 0;
+}
+
+.cashback-ext-brand {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #6b6f80;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cashback-ext-brand-icon {
+    font-size: 14px;
+}
+
+.cashback-ext-close {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: #6b6f80;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    line-height: 1;
+    padding: 0;
+}
+
+.cashback-ext-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e4e6ea;
+}
+
+/* Контент */
+.cashback-ext-body {
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cashback-ext-icon {
+    font-size: 36px;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.cashback-ext-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.cashback-ext-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.cashback-ext-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #e74c3c;
+}
+
+.cashback-ext-subtitle {
+    font-size: 12px;
+    color: #8b8fa3;
+}
+
+/* Кнопка */
+.cashback-ext-actions {
+    padding: 0 14px 14px;
+}
+
+.cashback-ext-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 11px 16px;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.cashback-ext-btn:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    transform: translateY(-1px);
+}
+
+.cashback-ext-btn:active {
+    transform: translateY(0);
+}
+
+.cashback-ext-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.cashback-ext-btn.success {
+    background: linear-gradient(135deg, #27ae60, #1e8449);
+}
+
+/* Состояние активировано */
+#cashback-ext-notification.activated {
+    border-color: rgba(39, 174, 96, 0.4);
+}
+
+#cashback-ext-notification.activated .cashback-ext-value {
+    color: #27ae60;
+}
+
+/* Адаптивность */
+@media (max-width: 420px) {
+    #cashback-ext-notification {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+        max-width: none;
+    }
+}
