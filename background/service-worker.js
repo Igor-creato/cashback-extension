@@ -640,7 +640,11 @@ async function updateIconForTab(tabId, url) {
     }
 }
 
-async function setIcon(tabId, state, badgeText = '') {
+// eslint-disable-next-line no-unused-vars
+async function setIcon(tabId, state, _badgeText = '') {
+    // Badge с процентом кэшбэка отключён по UX-решению (icon-only).
+    // Параметр _badgeText сохранён для обратной совместимости с callsite'ами,
+    // но всегда игнорируется — badge принудительно очищается.
     try {
         await chrome.action.setIcon({
             tabId,
@@ -652,15 +656,7 @@ async function setIcon(tabId, state, badgeText = '') {
             },
         });
 
-        if (badgeText) {
-            await chrome.action.setBadgeText({ tabId, text: badgeText });
-            await chrome.action.setBadgeBackgroundColor({
-                tabId,
-                color: state === ICON_STATES.RED ? '#e74c3c' : '#27ae60',
-            });
-        } else {
-            await chrome.action.setBadgeText({ tabId, text: '' });
-        }
+        await chrome.action.setBadgeText({ tabId, text: '' });
     } catch (e) {
         console.warn('[Cashback] setIcon error:', e && e.message);
     }
