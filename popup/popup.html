@@ -16,7 +16,7 @@
     <div id="screen-auth" class="screen hidden">
       <div class="header">
         <div class="logo">
-          <img src="../icons/savello-club-logo.svg" width="32" height="32" alt="Савелло Клуб" />
+          <img src="../icons/savello-club-logo-color-site.svg" width="32" height="32" alt="Савелло Клуб" />
           <!-- <span class="logo-icon">&#128176;</span> -->
           <span class="logo-text">Кэшбэк Сервис Савелло Клуб</span>
         </div>
@@ -33,7 +33,7 @@
       <!-- Header -->
       <div class="header">
         <div class="logo">
-          <img src="../icons/savello-club-logo.svg" width="32" height="32" alt="Савелло Клуб" />
+          <img src="../icons/savello-club-logo-color-site.svg" width="32" height="32" alt="Савелло Клуб" />
           <!-- <span class="logo-icon">&#128176;</span> -->
           <span class="logo-text">Кэшбэк Сервис Савелло Клуб</span>
         </div>
@@ -41,7 +41,7 @@
           <button id="btn-refresh" class="btn-refresh" title="Обновить список магазинов">
             &#8635;
           </button>
-          <span id="user-name" class="user-name"></span>
+          <a id="user-name" class="user-name" href="#" target="_blank" rel="noopener" title="Личный кабинет"></a>
         </div>
       </div>
 
@@ -129,12 +129,21 @@
         <!-- Состояние: нет кэшбэка (серая иконка) -->
         <div id="cashback-none" class="cashback-card cashback-none hidden">
           <span class="cashback-none-text">На этом сайте кэшбэк недоступен</span>
-          <a id="link-stores" class="link-stores" href="#">Все магазины с кэшбэком &#8594;</a>
+          <button id="link-stores" class="btn-stores" type="button">Все магазины с кэшбэком &#8594;</button>
         </div>
       </div>
 
-      <!-- Транзакции -->
-      <div class="transactions-section">
+      <!-- Промокоды текущего магазина (виден только когда мы на распознанном
+           партнёрском сайте и для него есть активные промо) -->
+      <div id="promocodes-section" class="promocodes-section hidden">
+        <div class="section-header">
+          <span class="section-title">Активные промокоды</span>
+        </div>
+        <div id="promocodes-list" class="promocodes-list"></div>
+      </div>
+
+      <!-- Транзакции (показываются, когда нет промокодов для текущего магазина) -->
+      <div id="transactions-section" class="transactions-section">
         <div class="section-header">
           <span class="section-title">Последние покупки</span>
         </div>

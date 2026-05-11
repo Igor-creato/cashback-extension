@@ -39,7 +39,7 @@ body {
     width: 32px;
     height: 32px;
     border: 3px solid rgba(0, 0, 0, 0.1);
-    border-top-color: #83b735;
+    border-top-color: #5b6cf7;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
@@ -83,11 +83,24 @@ body {
 
 .user-name {
     font-size: 12px;
-    color: #707070;
+    color: #5b6cf7;
+    text-decoration: underline;
     max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    cursor: pointer;
+}
+
+a.user-name:hover {
+    color: #4555e8;
+    text-decoration: none;
+}
+
+a.user-name:focus-visible {
+    outline: 2px solid #5b6cf7;
+    outline-offset: 2px;
+    border-radius: 2px;
 }
 
 /* ─── Refresh Button ─── */
@@ -159,7 +172,7 @@ body {
     justify-content: center;
     padding: 10px 20px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -183,12 +196,12 @@ body {
 }
 
 .btn-primary {
-    background: #83b735;
+    background: #4555e8;
     color: #fff;
 }
 
 .btn-primary:hover {
-    background: #74a32f;
+    background: #5b6cf7;
 }
 
 .btn-full {
@@ -196,7 +209,7 @@ body {
 }
 
 .btn-activate {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: linear-gradient(135deg, #c0392b, #a93226);
     color: #fff;
     width: 100%;
     padding: 12px;
@@ -205,12 +218,12 @@ body {
 }
 
 .btn-activate:hover {
-    background: linear-gradient(135deg, #c0392b, #a93226);
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
 }
 
 /* Кнопка повторной активации (competing) — оранжевая */
 .btn-reactivate {
-    background: linear-gradient(135deg, #f39c12, #d68910);
+    background: linear-gradient(135deg, #d68910, #b7770d);
     color: #fff;
     width: 100%;
     padding: 12px;
@@ -219,7 +232,7 @@ body {
 }
 
 .btn-reactivate:hover {
-    background: linear-gradient(135deg, #d68910, #b7770d);
+    background: linear-gradient(135deg, #f39c12, #d68910);
 }
 
 .btn-activate.loading {
@@ -271,17 +284,22 @@ body {
 }
 
 .btn-withdraw {
-    padding: 5px 12px;
+    padding: 8px 18px;
     font-size: 12px;
-    font-weight: 600;
-    background: #27ae60;
+    font-weight: 700;
+    background: #f76b41;
     color: #fff;
-    border-radius: 6px;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px -12px rgba(15, 18, 34, 0.10);
+    transition: background-color 0.15s ease, box-shadow 0.2s ease, transform 0.2s ease;
     flex-shrink: 0;
 }
 
 .btn-withdraw:hover {
-    background: #219a52;
+    background: #ff8a65;
+    box-shadow: 0 18px 36px -16px rgba(15, 18, 34, 0.14);
+    transform: translateY(-1px);
 }
 
 .balance-row {
@@ -423,14 +441,27 @@ body {
     color: #909090;
 }
 
-.link-stores {
+.btn-stores {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 22px;
+    background: #4555e8;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
     font-size: 13px;
-    color: #83b735;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 24px -12px rgba(15, 18, 34, 0.10);
+    transition: background-color 0.15s ease, box-shadow 0.2s ease, transform 0.2s ease;
     text-decoration: none;
 }
 
-.link-stores:hover {
-    text-decoration: underline;
+.btn-stores:hover {
+    background: #5b6cf7;
+    box-shadow: 0 18px 36px -16px rgba(15, 18, 34, 0.14);
+    transform: translateY(-1px);
 }
 
 /* ─── Transactions ─── */
@@ -548,6 +579,130 @@ body {
 .status-hold {
     background: rgba(155, 89, 182, 0.15);
     color: #9b59b6;
+}
+
+/* ─── Promocodes ─── */
+
+.promocodes-section {
+    padding: 0 16px 16px;
+}
+
+.promocodes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.promo-card {
+    position: relative;
+    background: #f5f5f5;
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.promo-card__exclusive {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #fff;
+    background: #4555e8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.promo-card__discount {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e74c3c;
+}
+
+.promo-card__name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #242424;
+    line-height: 1.35;
+}
+
+.promo-card__code-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.promo-card__code {
+    flex: 1;
+    min-width: 0;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: #242424;
+    background: #fff;
+    border: 1px dashed #c8c8c8;
+    border-radius: 6px;
+    padding: 6px 10px;
+    user-select: all;
+    word-break: break-all;
+}
+
+.promo-card__copy {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: #5b6cf7;
+    background: transparent;
+    border: 1px solid #5b6cf7;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.promo-card__copy:hover {
+    background: #5b6cf7;
+    color: #fff;
+}
+
+.promo-card__copy.copied {
+    background: #27ae60;
+    border-color: #27ae60;
+    color: #fff;
+}
+
+.promo-card__date {
+    font-size: 11px;
+    color: #909090;
+}
+
+.promo-card__goto {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 14px;
+    background: #4555e8;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.promo-card__goto:hover {
+    background: #5b6cf7;
+    transform: translateY(-1px);
+}
+
+.promo-card__goto:active {
+    transform: translateY(0);
 }
 
 /* ─── Scrollbar ─── */

@@ -237,6 +237,18 @@ const CashbackAPI = {
     },
 
     /**
+     * Получить активные промокоды магазина для popup.
+     * Public endpoint, не требует авторизации. Сервер кеширует ответ
+     * в transient на 1 час с инвалидацией по cron-fetch / product-save.
+     *
+     * @param {number} productId - ID товара WooCommerce
+     * @returns {Promise<{product_id:number, items:Array, total:number}>}
+     */
+    async fetchPromocodes(productId) {
+        return this.request('/promocodes', { product_id: productId });
+    },
+
+    /**
      * Найти магазин по домену из кешированного списка.
      *
      * @param {string} domain - Домен для поиска

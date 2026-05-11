@@ -44,7 +44,11 @@ const els = {
     // none state
     cashbackNone:         $('#cashback-none'),
     linkStores:           $('#link-stores'),
+    // promocodes
+    promocodesSection:    $('#promocodes-section'),
+    promocodesList:       $('#promocodes-list'),
     // other
+    transactionsSection:  $('#transactions-section'),
     transactionsList:     $('#transactions-list'),
     btnRefresh:           $('#btn-refresh'),
 };
@@ -78,6 +82,16 @@ async function init() {
     // Кнопка обновления магазинов
     els.btnRefresh.addEventListener('click', handleRefresh);
 
+    // Имя пользователя → личный кабинет.
+    // chrome.tabs.create открывает в новой вкладке и закрывает popup —
+    // надёжнее target="_blank" для extension popup.
+    els.userName.addEventListener('click', (e) => {
+        const href = els.userName.getAttribute('href');
+        if (!href || href === '#') return;
+        e.preventDefault();
+        chrome.tabs.create({ url: href });
+    });
+
     // Проверка авторизации
     try {
         const authResult = await sendMessage({ type: 'CHECK_AUTH' });
@@ -98,7 +112,14 @@ async function init() {
         ]);
 
         renderCashbackSection(storeInfo);
-        renderTransactions(transactions);
+
+        // Если пользователь стоит на распознанном магазине — пытаемся
+        // показать его активные промокоды вместо последних покупок.
+        // Fallback на транзакции при пустом списке / ошибке сети.
+        const shownPromocodes = await tryRenderPromocodesForStore(storeInfo);
+        if (!shownPromocodes) {
+            renderTransactions(transactions);
+        }
     } catch {
         showScreen('auth');
     }
@@ -125,6 +146,11 @@ function showScreen(screen) {
 
 function renderProfile(profile) {
     els.userName.textContent = profile.display_name;
+    // account_url приходит из /me (см. Cashback_REST_API::get_me). Fallback
+    // на конфиг — для старых версий плагина без этого поля.
+    const accountUrl = profile.account_url || CASHBACK_CONFIG.LOGIN_URL;
+    els.userName.href = accountUrl;
+
     els.balanceAvailable.textContent = formatMoney(profile.balance.available);
     els.balancePending.textContent = formatMoney(profile.balance.pending);
     els.balancePaid.textContent = formatMoney(profile.balance.paid);
@@ -336,6 +362,154 @@ function startTimer(activation) {
 
     updateTimer();
     timerInterval = setInterval(updateTimer, 1000);
+}
+
+// ─── Промокоды текущего магазина ───
+
+/**
+ * Если на текущей вкладке распознан партнёрский магазин (storeInfo.store),
+ * пытается загрузить его активные промокоды и отрисовать секцию вместо
+ * «Последних покупок».
+ *
+ * @returns {Promise<boolean>} true — промокоды найдены и отрисованы,
+ *                              false — нет магазина / промокодов / ошибка
+ *                              (caller рендерит транзакции как fallback).
+ */
+async function tryRenderPromocodesForStore(storeInfo) {
+    if (!storeInfo || !storeInfo.store || !storeInfo.store.product_id) {
+        showTransactionsSection();
+        return false;
+    }
+    try {
+        const data = await CashbackAPI.fetchPromocodes(storeInfo.store.product_id);
+        if (data && Array.isArray(data.items) && data.items.length > 0) {
+            renderPromocodes(data.items);
+            showPromocodesSection();
+            return true;
+        }
+    } catch (err) {
+        // eslint-disable-next-line no-console
+        console.warn('[CB] fetchPromocodes failed, fallback to transactions', err);
+    }
+    showTransactionsSection();
+    return false;
+}
+
+function showPromocodesSection() {
+    els.promocodesSection.classList.remove('hidden');
+    els.transactionsSection.classList.add('hidden');
+}
+
+function showTransactionsSection() {
+    els.promocodesSection.classList.add('hidden');
+    els.transactionsSection.classList.remove('hidden');
+}
+
+function renderPromocodes(items) {
+    els.promocodesList.innerHTML = items
+        .map((promo) => {
+            const name        = escapeHtml(promo.name || '');
+            const code        = promo.promocode || '';
+            const hasCode     = code !== '';
+            const codeEsc     = escapeHtml(code);
+            const codeAttr    = escapeAttr(code);
+            const exclusive   = promo.is_exclusive
+                ? '<span class="promo-card__exclusive">Эксклюзив</span>'
+                : '';
+            const discount    = promo.discount
+                ? `<div class="promo-card__discount">${escapeHtml(String(promo.discount))}</div>`
+                : '';
+            const dateEnd     = promo.date_end
+                ? `<div class="promo-card__date">до ${escapeHtml(formatPromoDate(promo.date_end))}</div>`
+                : '';
+            const codeRow     = hasCode
+                ? `<div class="promo-card__code-row">
+                       <code class="promo-card__code">${codeEsc}</code>
+                       <button type="button" class="promo-card__copy" data-clipboard="${codeAttr}" aria-label="Скопировать промокод">Скопировать</button>
+                   </div>`
+                : '';
+            const redirectAttr = escapeAttr(promo.redirect_url || '#');
+
+            return `
+                <article class="promo-card" data-promo-id="${escapeAttr(String(promo.id))}">
+                    ${exclusive}
+                    ${discount}
+                    <div class="promo-card__name">${name}</div>
+                    ${codeRow}
+                    ${dateEnd}
+                    <a class="promo-card__goto"
+                       href="${redirectAttr}"
+                       target="_blank"
+                       rel="noopener nofollow"
+                       data-action="goto">Перейти</a>
+                </article>
+            `;
+        })
+        .join('');
+
+    bindPromoCopyHandlers();
+    bindPromoGotoHandlers();
+}
+
+function bindPromoCopyHandlers() {
+    els.promocodesList.querySelectorAll('.promo-card__copy').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const code = btn.dataset.clipboard || '';
+            if (!code) return;
+            try {
+                await navigator.clipboard.writeText(code);
+                const original = btn.textContent;
+                btn.classList.add('copied');
+                btn.textContent = 'Скопировано';
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.textContent = original;
+                }, 1500);
+            } catch {
+                // clipboard API недоступен — игнорируем, пользователь может
+                // выделить код руками.
+            }
+        });
+    });
+}
+
+function bindPromoGotoHandlers() {
+    // chrome.tabs.create открывает в новой вкладке и закрывает popup
+    // надёжнее, чем target="_blank" — для extension popup поведение
+    // последнего нестабильно.
+    els.promocodesList.querySelectorAll('.promo-card__goto').forEach((a) => {
+        a.addEventListener('click', (e) => {
+            const href = a.getAttribute('href');
+            if (!href || href === '#') return;
+            e.preventDefault();
+            chrome.tabs.create({ url: href });
+        });
+    });
+}
+
+function formatPromoDate(dateStr) {
+    if (!dateStr) return '';
+    try {
+        const d = new Date(dateStr);
+        if (Number.isNaN(d.getTime())) return dateStr;
+        return d.toLocaleDateString('ru-RU', {
+            day:   '2-digit',
+            month: '2-digit',
+            year:  'numeric',
+        });
+    } catch {
+        return dateStr;
+    }
+}
+
+function escapeAttr(text) {
+    return String(text).replace(/[&<>"']/g, (ch) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
+    })[ch]);
 }
 
 // ─── Транзакции ───

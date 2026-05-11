@@ -532,7 +532,7 @@
       '<div class="cb-header">' +
       '<span class="cb-brand">' +
       '<img src="' +
-      chrome.runtime.getURL('icons/savello-club-logo.svg') +
+      chrome.runtime.getURL('icons/savello-club-logo-color-site.svg') +
       '" width="32" height="32" style="vertical-align:middle">' +
       ' Кэшбэк Сервис Савелло Клуб' +
       '</span>' +
