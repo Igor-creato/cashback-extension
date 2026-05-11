@@ -66,15 +66,20 @@
     document.addEventListener(
       'click',
       function (e) {
-        // Ищем ближайшую ссылку с data-product-id (кнопка «Получить кэшбэк»)
-        const btn = e.target.closest('[data-product-id]');
+        // Ищем кнопку «Получить кэшбэк». Плагин гарантированно ставит ОБА
+        // атрибута data-product-id и data-product-url только на ней
+        // (wc-affiliate-url-params.php: modify_single_product_button и
+        // add_product_id_to_link). Эта пара отсекает WoodMart wishlist
+        // (`.wd-wishlist-btn a` — только data-product-id) и иконки купонов
+        // (`<span data-product-id>` — не <a>).
+        const btn = e.target.closest('a[data-product-id][data-product-url]');
         if (!btn) return;
 
         const productId = parseInt(btn.getAttribute('data-product-id'), 10);
         if (!productId) return;
 
-        // Перехватываем все кнопки с data-product-id на нашем сайте
-        // (и новые с cashback_click=, и старые с прямым affiliate URL)
+        // Перехватываем кэшбэк-кнопки (и новые с cashback_click=,
+        // и старые с прямым affiliate URL — обе формы получают data-product-url).
         const href = btn.getAttribute('href') || '';
         if (!href) return;
 
