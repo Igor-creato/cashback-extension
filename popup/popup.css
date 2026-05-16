@@ -165,6 +165,20 @@ a.user-name:focus-visible {
     line-height: 1.5;
 }
 
+.auth-register {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.auth-register-text {
+    text-align: center;
+    color: #707070;
+    font-size: 13px;
+}
+
 /* ─── Buttons ─── */
 
 .btn {
@@ -203,6 +217,18 @@ a.user-name:focus-visible {
 
 .btn-primary:hover {
     background: #5b6cf7;
+}
+
+.btn-secondary {
+    background: #fff;
+    color: #4555e8;
+    border: 1px solid #4555e8;
+}
+
+.btn-secondary:hover {
+    background: #5b6cf7;
+    border-color: #5b6cf7;
+    color: #fff;
 }
 
 .btn-full {
