@@ -14,7 +14,7 @@
     "offscreen"
   ],
   "host_permissions": [
-    "https://mybestestsite.autmatization-bot.ru/*"
+    "https://savelloclub.ru/*"
   ],
   "action": {
     "default_popup": "popup/popup.html",

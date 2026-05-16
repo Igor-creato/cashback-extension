@@ -18,8 +18,8 @@
 
 // Allowlist хостов для fetch. Подгружается из config.js в SW и передаётся в URL;
 // здесь сверяем хост, потому что offscreen.html не подключает config.js.
-const ALLOWED_HOST_SUFFIX = '.autmatization-bot.ru';
-const ALLOWED_HOSTS_EXACT = ['mybestestsite.autmatization-bot.ru'];
+const ALLOWED_HOST_SUFFIX = '.savelloclub.ru';
+const ALLOWED_HOSTS_EXACT = ['savelloclub.ru'];
 
 function isAllowedUrl(rawUrl) {
     try {

@@ -10,7 +10,7 @@
 const CASHBACK_CONFIG = {
   // URL WordPress-сайта (без trailing slash)
   // ПРОДАКШЕН: заменить на https://your-domain.com
-  SITE_URL: 'https://mybestestsite.autmatization-bot.ru',
+  SITE_URL: 'https://savelloclub.ru',
 
   // Базовый URL REST API
   get API_BASE() {
