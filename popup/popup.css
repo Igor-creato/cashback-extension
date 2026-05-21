@@ -441,6 +441,12 @@ a.user-name:focus-visible {
     color: #e74c3c;
 }
 
+.cashback-status-inactive {
+    font-size: 18px;
+    font-weight: 700;
+    color: #e74c3c;
+}
+
 .cashback-status-text {
     font-size: 15px;
     font-weight: 600;

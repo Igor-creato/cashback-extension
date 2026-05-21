@@ -242,26 +242,24 @@ function renderCashbackSection(storeInfo) {
             break;
 
         case 'expired':
-            // TTL истёк — серая карточка, кнопка инициирует НОВЫЙ заход
-            // через Савелло (не реактивация чужой сессии).
+            // TTL истёк — серая карточка. Кнопка ведёт на single product page
+            // на сайте; активацию запускает уже она (плагин), а не popup.
             els.cashbackExpired.classList.remove('hidden');
             els.expiredStoreName.textContent = store.store_name || store.domain;
-            els.btnReactivateExpired.dataset.productId = store.product_id;
-            els.btnReactivateExpired.dataset.domain    = store.domain;
+            els.btnReactivateExpired.dataset.permalink = store.permalink || '';
             break;
 
         default:
             // idle: кэшбэк доступен, но не активирован — красная карточка.
-            // Сюда же попадает случай «пользователь пришёл через другого
-            // партнёра или органически» — мы намеренно не отличаем его
-            // от idle, чтобы не было соблазна предложить перебитие.
+            // Кнопка ведёт на single product page магазина; popup сам активацию
+            // не запускает (это делает страница товара после клика пользователя
+            // на её собственный CTA).
             els.cashbackAvailable.classList.remove('hidden');
             els.storeName.textContent   = store.store_name || store.domain;
             els.cashbackValue.textContent =
                 (store.cashback_label || 'Кэшбэк') + ' ' +
                 (store.cashback_value || '');
-            els.btnActivate.dataset.productId = store.product_id;
-            els.btnActivate.dataset.domain    = store.domain;
+            els.btnActivate.dataset.permalink = store.permalink || '';
             break;
     }
 }
@@ -294,66 +292,17 @@ async function handleRefresh() {
  *   #btn-activate           (idle state)
  *   #btn-reactivate-expired (expired state)
  *
- * Обе кнопки инициируют НОВЫЙ заход через savelloclub.ru — это
- * легитимная пользовательская активация (новый трафик), а не
- * перебитие существующей чужой сессии.
+ * Popup сам активацию не запускает — он открывает single product page
+ * магазина на нашем сайте в новой вкладке; саму активацию выполняет уже
+ * страница товара (тот же CTA, что доступен в каталоге). Так логика не
+ * дублируется между расширением и плагином, и пользователь видит полный
+ * контекст товара (правила, промокоды, тарифы) перед кликом.
  */
-async function handleActivate(btn) {
-    const productId = parseInt(btn.dataset.productId, 10);
-    const domain    = btn.dataset.domain;
-
-    if (!productId || btn.disabled) return;
-
-    btn.disabled = true;
-    btn.classList.add('loading');
-    btn.textContent = 'Активация...';
-
-    try {
-        const result = await sendMessage({
-            type: 'ACTIVATE',
-            productId,
-            domain,
-        });
-
-        if (result && result.error === 'no_consent') {
-            // Согласие не получено — открываем онбординг и закрываем попап.
-            await sendMessage({ type: 'OPEN_ONBOARDING' });
-            window.close();
-            return;
-        }
-
-        if (result.error) {
-            throw new Error(result.error);
-        }
-
-        // Redirect через activation page (interstitial) для:
-        // 1. CPA-сеть видит корректный Referer
-        // 2. Content script bridge подтверждает активацию расширению
-        // Fallback: redirect_url напрямую если activation_page_url нет
-        const redirectTo = (result.activation_page_url && isValidRedirectUrl(result.activation_page_url))
-            ? result.activation_page_url
-            : result.redirect_url;
-
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        if (tab && redirectTo && isValidRedirectUrl(redirectTo)) {
-            await chrome.tabs.update(tab.id, { url: redirectTo });
-        }
-
-        // Переключаем на состояние "активирован" независимо от исходного состояния
-        els.cashbackAvailable.classList.add('hidden');
-        els.cashbackExpired.classList.add('hidden');
-        els.cashbackActivated.classList.remove('hidden');
-
-        startTimer({
-            remaining_minutes: 30,
-            activated_at:      new Date().toISOString(),
-        });
-    } catch {
-        btn.textContent = 'Ошибка. Попробуйте снова';
-    } finally {
-        btn.disabled = false;
-        btn.classList.remove('loading');
-    }
+function handleActivate(btn) {
+    const permalink = btn.dataset.permalink;
+    if (!permalink || !isValidRedirectUrl(permalink)) return;
+    chrome.tabs.create({ url: permalink });
+    window.close();
 }
 
 // ─── Таймер активации ───
@@ -415,7 +364,7 @@ async function tryRenderPromocodesForStore(storeInfo) {
     try {
         const data = await CashbackAPI.fetchPromocodes(storeInfo.store.product_id);
         if (data && Array.isArray(data.items) && data.items.length > 0) {
-            renderPromocodes(data.items);
+            renderPromocodes(data.items, storeInfo.store);
             showPromocodesSection();
             return true;
         }
@@ -437,7 +386,18 @@ function showTransactionsSection() {
     els.transactionsSection.classList.remove('hidden');
 }
 
-function renderPromocodes(items) {
+function renderPromocodes(items, store) {
+    // «Перейти» на промокоде ведёт на single product page магазина с активной
+    // вкладкой промокодов (как иконка промокода в каталоге плагина — там та же
+    // конвенция `?cb_tab=coupons`, обрабатываемая cashback-coupons-tab.js).
+    // Один URL на все промокоды одного магазина — это намеренно: страница уже
+    // показывает все активные коды.
+    const storePermalink = (store && store.permalink) || '';
+    const gotoUrl = storePermalink
+        ? `${storePermalink}${storePermalink.includes('?') ? '&' : '?'}cb_tab=coupons`
+        : '#';
+    const gotoAttr = escapeAttr(gotoUrl);
+
     els.promocodesList.innerHTML = items
         .map((promo) => {
             const name        = escapeHtml(promo.name || '');
@@ -460,7 +420,6 @@ function renderPromocodes(items) {
                        <button type="button" class="promo-card__copy" data-clipboard="${codeAttr}" aria-label="Скопировать промокод">Скопировать</button>
                    </div>`
                 : '';
-            const redirectAttr = escapeAttr(promo.redirect_url || '#');
 
             return `
                 <article class="promo-card" data-promo-id="${escapeAttr(String(promo.id))}">
@@ -470,10 +429,10 @@ function renderPromocodes(items) {
                     ${codeRow}
                     ${dateEnd}
                     <a class="promo-card__goto"
-                       href="${redirectAttr}"
+                       href="${gotoAttr}"
                        target="_blank"
                        rel="noopener nofollow"
-                       data-action="goto">Перейти</a>
+                       data-action="goto">Активировать на сайте</a>
                 </article>
             `;
         })
@@ -509,7 +468,7 @@ function bindPromoGotoHandlers() {
     // chrome.tabs.create открывает в новой вкладке и закрывает popup
     // надёжнее, чем target="_blank" — для extension popup поведение
     // последнего нестабильно. isValidRedirectUrl блокирует javascript:/data:
-    // на случай скомпрометированного redirect_url из ответа сервера.
+    // на случай мусора в permalink из /stores.
     els.promocodesList.querySelectorAll('.promo-card__goto').forEach((a) => {
         a.addEventListener('click', (e) => {
             const href = a.getAttribute('href');
