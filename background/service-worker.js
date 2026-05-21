@@ -47,6 +47,14 @@ const ALARM_CLEANUP_ACTIVATIONS = 'cleanup-activations';
 const CURRENT_USER_KEY          = 'current_user_id';
 const CONSENT_KEY               = 'consent_at';
 
+// tabId -> domain последней проигранной анимации.
+// Не повторяем мигание при F5, переключении вкладок и повторных GET_STORE_INFO.
+const animatedDomainPerTab = new Map();
+
+// tabId -> { intervalId, timeoutId } активной анимации мигания.
+// Нужно чтобы отменить её при смене состояния (GREEN/GRAY) или закрытии вкладки.
+const activeAnimations = new Map();
+
 // ─── Согласие пользователя ───
 
 async function hasConsent() {
@@ -171,11 +179,17 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
     try {
         const tab = await chrome.tabs.get(activeInfo.tabId);
         if (tab.url) {
-            await updateIconForTab(activeInfo.tabId, tab.url);
+            // Переключение вкладок не должно триггерить мигание — только реальная навигация.
+            await updateIconForTab(activeInfo.tabId, tab.url, { allowAnimation: false });
         }
     } catch (e) {
         // Вкладка может быть уже закрыта
     }
+});
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+    cancelIconAnimation(tabId);
+    animatedDomainPerTab.delete(tabId);
 });
 
 // ─── Обработка сообщений ───
@@ -362,10 +376,12 @@ async function handleMessage(message, sender) {
 
 // ─── Управление иконкой ───
 
-async function updateIconForTab(tabId, url) {
+async function updateIconForTab(tabId, url, opts = {}) {
     try {
         const domain = extractDomain(url);
         if (!domain) {
+            cancelIconAnimation(tabId);
+            animatedDomainPerTab.delete(tabId);
             await setIcon(tabId, ICON_STATES.GRAY);
             return;
         }
@@ -384,6 +400,8 @@ async function updateIconForTab(tabId, url) {
 
         const store = await CashbackAPI.findStoreByDomain(domain);
         if (!store) {
+            cancelIconAnimation(tabId);
+            animatedDomainPerTab.delete(tabId);
             await setIcon(tabId, ICON_STATES.GRAY);
             return;
         }
@@ -409,6 +427,8 @@ async function updateIconForTab(tabId, url) {
         }
 
         if (activation.state === CASHBACK_STATE.ACTIVE) {
+            cancelIconAnimation(tabId);
+            animatedDomainPerTab.delete(tabId);
             await setIcon(tabId, ICON_STATES.GREEN, '');
             return;
         }
@@ -418,9 +438,20 @@ async function updateIconForTab(tabId, url) {
         // и «пользователь пришёл через другого партнёра/органически».
         // Информер на странице магазина не показываем — пользователь
         // увидит цвет иконки и при необходимости откроет попап.
-        await setIcon(tabId, ICON_STATES.RED, badgeText);
+        const lastAnimated = animatedDomainPerTab.get(tabId);
+        const shouldAnimate = opts.allowAnimation !== false && lastAnimated !== domain;
+
+        if (shouldAnimate) {
+            animatedDomainPerTab.set(tabId, domain);
+            await animateIconGreenToRed(tabId);
+        } else {
+            cancelIconAnimation(tabId);
+            await setIcon(tabId, ICON_STATES.RED, badgeText);
+        }
     } catch (e) {
         // При ошибке — серая иконка
+        cancelIconAnimation(tabId);
+        animatedDomainPerTab.delete(tabId);
         await setIcon(tabId, ICON_STATES.GRAY);
     }
 }
@@ -445,6 +476,50 @@ async function setIcon(tabId, state, _badgeText = '') {
     } catch (e) {
         console.warn('[Cashback] setIcon error:', e && e.message);
     }
+}
+
+function cancelIconAnimation(tabId) {
+    const anim = activeAnimations.get(tabId);
+    if (!anim) return;
+    clearInterval(anim.intervalId);
+    clearTimeout(anim.timeoutId);
+    activeAnimations.delete(tabId);
+}
+
+// Чередование GREEN↔RED 5 секунд для привлечения внимания на партнёрском
+// сайте, затем стабильное состояние RED.
+async function animateIconGreenToRed(tabId) {
+    cancelIconAnimation(tabId);
+
+    const FRAMES = [
+        ICON_STATES.GREEN,
+        ICON_STATES.RED,
+        ICON_STATES.GREEN,
+        ICON_STATES.RED,
+        ICON_STATES.GREEN,
+        ICON_STATES.RED,
+        ICON_STATES.GREEN,
+        ICON_STATES.RED,
+        ICON_STATES.GREEN,
+        ICON_STATES.RED,
+    ];
+    const FRAME_MS = 500;
+    let i = 0;
+
+    await setIcon(tabId, FRAMES[i++]);
+
+    const intervalId = setInterval(() => {
+        if (i >= FRAMES.length) return;
+        setIcon(tabId, FRAMES[i++]);
+    }, FRAME_MS);
+
+    const timeoutId = setTimeout(() => {
+        clearInterval(intervalId);
+        activeAnimations.delete(tabId);
+        setIcon(tabId, ICON_STATES.RED);
+    }, FRAMES.length * FRAME_MS);
+
+    activeAnimations.set(tabId, { intervalId, timeoutId });
 }
 
 // ─── Статус активации ───
@@ -766,7 +841,9 @@ async function updateIconForAllTabsWithDomain(domain) {
             if (!tab.url) continue;
             const tabDomain = extractDomain(tab.url);
             if (tabDomain === domain) {
-                await updateIconForTab(tab.id, tab.url);
+                // Синхронизация состояния (активация/expire) — не реальная навигация,
+                // мигание не запускаем.
+                await updateIconForTab(tab.id, tab.url, { allowAnimation: false });
             }
         }
     } catch {
