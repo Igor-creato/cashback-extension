@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Кэшбэк Сервис Савелло Клуб",
-  "version": "1.5.4",
-  "description": "Получайте кэшбэк с покупок в интернет-магазинах. Автоматическое определение магазинов, активация кэшбэка одним кликом.",
+  "version": "1.6.0",
+  "description": "Получайте кэшбэк с покупок в интернет-магазинах. Активация — только по вашему явному клику в попапе расширения или на сайте savelloclub.ru.",
   "default_locale": "ru",
   "permissions": [
     "storage",
@@ -10,7 +10,6 @@
     "alarms",
     "activeTab",
     "cookies",
-    "webNavigation",
     "offscreen"
   ],
   "host_permissions": [
@@ -31,8 +30,8 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["utils/config.js", "content/content.js"],
+      "matches": ["https://savelloclub.ru/*"],
+      "js": ["utils/config.js", "content/savello-site.js"],
       "run_at": "document_idle"
     }
   ],
@@ -44,8 +43,8 @@
   },
   "web_accessible_resources": [
     {
-        "resources": ["icons/*.svg", "icons/*.png"],
-        "matches": ["<all_urls>"]
+      "resources": ["icons/*.svg", "icons/*.png"],
+      "matches": ["https://savelloclub.ru/*"]
     }
-]
+  ]
 }

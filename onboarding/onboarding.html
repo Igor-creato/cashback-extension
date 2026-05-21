@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Добро пожаловать — Кэшбэк Сервис Савелло Клуб</title>
+    <link rel="stylesheet" href="onboarding.css" />
+  </head>
+  <body>
+    <main class="card">
+      <header class="card__header">
+        <img
+          class="card__logo"
+          src="../icons/savello-club-logo-color-site.svg"
+          width="48"
+          height="48"
+          alt="Савелло Клуб"
+        />
+        <h1 class="card__title">Добро пожаловать в Кэшбэк Сервис Савелло Клуб</h1>
+        <p class="card__subtitle">
+          Перед тем как начать, прочитайте, как работает расширение и какие данные оно обрабатывает.
+        </p>
+      </header>
+
+      <section class="block">
+        <h2 class="block__title">Что делает расширение</h2>
+        <ul class="block__list">
+          <li>Показывает цветной значок при заходе на сайт магазина-партнёра: зелёный — кэшбэк активен, красный — есть возможность активации, серый — магазин не участвует.</li>
+          <li>Активирует кэшбэк <strong>только по вашему явному клику</strong> — в попапе расширения или на кнопке «Получить кэшбэк» на сайте savelloclub.ru.</li>
+          <li>Никогда не активирует кэшбэк автоматически и не перенаправляет вас без вашего согласия.</li>
+        </ul>
+      </section>
+
+      <section class="block">
+        <h2 class="block__title">Какие данные обрабатываются</h2>
+        <ul class="block__list">
+          <li>Домен открытой вкладки читается <strong>локально</strong>, чтобы определить, является ли сайт партнёрским. Сами адреса страниц никуда не передаются.</li>
+          <li>На сервер savelloclub.ru при активации уходят только идентификатор товара (<code>product_id</code>) и идентификатор клика (<code>click_id</code>). Авторизация выполняется через ваши cookie сайта savelloclub.ru.</li>
+          <li>История посещений, личные данные и информация со сторонних сайтов на сервер <strong>не передаются</strong>.</li>
+        </ul>
+      </section>
+
+      <section class="block">
+        <h2 class="block__title">Раскрытие affiliate</h2>
+        <p class="block__text">
+          Это аффилиатное расширение. Когда вы активируете кэшбэк и совершаете покупку, мы получаем партнёрское
+          вознаграждение от магазина и часть этого вознаграждения возвращаем вам в виде кэшбэка.
+        </p>
+      </section>
+
+      <section class="block block--policy">
+        <p class="block__text">
+          Подробнее об обработке персональных данных — в
+          <a id="policy-link" href="#" target="_blank" rel="noopener">политике обработки данных</a>.
+        </p>
+      </section>
+
+      <div class="actions">
+        <button id="btn-accept" class="btn btn--primary" type="button">Согласен и продолжить</button>
+        <button id="btn-decline" class="btn btn--secondary" type="button">Не сейчас</button>
+      </div>
+
+      <p id="declined-hint" class="declined-hint hidden">
+        Расширение оставлено в неактивном режиме. Открыть этот экран снова можно из попапа расширения.
+      </p>
+    </main>
+
+    <script src="../utils/config.js"></script>
+    <script src="onboarding.js"></script>
+  </body>
+</html>

@@ -2,10 +2,14 @@
  * Popup script для браузерного расширения кэшбэк-сервиса.
  *
  * Управляет отображением:
+ * - Экрана онбординга (если consent ещё не получен)
  * - Экрана авторизации
  * - Баланса пользователя
- * - Блока кэшбэка (4 состояния: idle / active / competing / expired)
+ * - Блока кэшбэка (3 состояния: idle / active / expired)
  * - Списка последних транзакций
+ *
+ * Состояния competing/реактивации удалены: расширение не детектирует
+ * чужую атрибуцию и не предлагает перебить её через нашу партнёрку.
  */
 
 document.addEventListener('DOMContentLoaded', init);
@@ -16,6 +20,10 @@ const $ = (selector) => document.querySelector(selector);
 
 const els = {
     loading:              $('#loading'),
+    screenConsent:        $('#screen-consent'),
+    btnOpenOnboarding:    $('#btn-open-onboarding'),
+    consentPolicyLink:    $('#consent-policy-link'),
+    footerPolicyLink:     $('#footer-policy-link'),
     screenAuth:           $('#screen-auth'),
     screenMain:           $('#screen-main'),
     btnLogin:             $('#btn-login'),
@@ -33,10 +41,6 @@ const els = {
     // active state
     cashbackActivated:    $('#cashback-activated'),
     timerValue:           $('#timer-value'),
-    // competing state
-    cashbackCompeting:    $('#cashback-competing'),
-    competingStoreName:   $('#competing-store-name'),
-    btnReactivate:        $('#btn-reactivate'),
     // expired state
     cashbackExpired:      $('#cashback-expired'),
     expiredStoreName:     $('#expired-store-name'),
@@ -58,6 +62,16 @@ let timerInterval = null;
 // ─── Инициализация ───
 
 async function init() {
+    // Ссылки на политику обработки данных — экран consent + футер
+    els.consentPolicyLink.href = CASHBACK_CONFIG.PRIVACY_POLICY_URL;
+    els.footerPolicyLink.href  = CASHBACK_CONFIG.PRIVACY_POLICY_URL;
+
+    // Кнопка «Открыть онбординг» на экране consent
+    els.btnOpenOnboarding.addEventListener('click', async () => {
+        await sendMessage({ type: 'OPEN_ONBOARDING' });
+        window.close();
+    });
+
     // Кнопка входа
     els.btnLogin.addEventListener('click', () => {
         chrome.tabs.create({ url: CASHBACK_CONFIG.LOGIN_URL });
@@ -71,7 +85,6 @@ async function init() {
 
     // Кнопки активации
     els.btnActivate.addEventListener('click', () => handleActivate(els.btnActivate));
-    els.btnReactivate.addEventListener('click', () => handleActivate(els.btnReactivate));
     els.btnReactivateExpired.addEventListener('click', () => handleActivate(els.btnReactivateExpired));
 
     // Кнопка вывода кэшбэка
@@ -93,6 +106,19 @@ async function init() {
         e.preventDefault();
         chrome.tabs.create({ url: href });
     });
+
+    // Сначала — consent gate. До прохождения онбординга функциональность
+    // активации недоступна, и нет смысла дёргать API.
+    let consentResult;
+    try {
+        consentResult = await sendMessage({ type: 'CHECK_CONSENT' });
+    } catch {
+        consentResult = { consent: false };
+    }
+    if (!consentResult || !consentResult.consent) {
+        showScreen('consent');
+        return;
+    }
 
     // Проверка авторизации
     try {
@@ -131,10 +157,14 @@ async function init() {
 
 function showScreen(screen) {
     els.loading.classList.add('hidden');
+    els.screenConsent.classList.add('hidden');
     els.screenAuth.classList.add('hidden');
     els.screenMain.classList.add('hidden');
 
     switch (screen) {
+        case 'consent':
+            els.screenConsent.classList.remove('hidden');
+            break;
         case 'auth':
             els.screenAuth.classList.remove('hidden');
             break;
@@ -181,8 +211,7 @@ async function getCurrentTabStoreInfo() {
 
 /**
  * Рендер блока кэшбэка для текущего сайта.
- * Четыре состояния: idle / active / competing / expired.
- * Нет магазина → none.
+ * Три состояния: idle / active / expired. Нет магазина → none.
  */
 function renderCashbackSection(storeInfo) {
     els.cashbackSection.classList.remove('hidden');
@@ -190,7 +219,6 @@ function renderCashbackSection(storeInfo) {
     // Скрываем все состояния
     els.cashbackAvailable.classList.add('hidden');
     els.cashbackActivated.classList.add('hidden');
-    els.cashbackCompeting.classList.add('hidden');
     els.cashbackExpired.classList.add('hidden');
     els.cashbackNone.classList.add('hidden');
 
@@ -213,17 +241,9 @@ function renderCashbackSection(storeInfo) {
             startTimer(storeInfo.activation);
             break;
 
-        case 'competing':
-            // Чужой сайт перехватил активацию — оранжевая карточка
-            els.cashbackCompeting.classList.remove('hidden');
-            els.competingStoreName.textContent = store.store_name || store.domain;
-            // Устанавливаем данные для повторной активации
-            els.btnReactivate.dataset.productId = store.product_id;
-            els.btnReactivate.dataset.domain    = store.domain;
-            break;
-
         case 'expired':
-            // TTL истёк — серая карточка
+            // TTL истёк — серая карточка, кнопка инициирует НОВЫЙ заход
+            // через Савелло (не реактивация чужой сессии).
             els.cashbackExpired.classList.remove('hidden');
             els.expiredStoreName.textContent = store.store_name || store.domain;
             els.btnReactivateExpired.dataset.productId = store.product_id;
@@ -231,7 +251,10 @@ function renderCashbackSection(storeInfo) {
             break;
 
         default:
-            // idle: кэшбэк доступен, но не активирован — красная карточка
+            // idle: кэшбэк доступен, но не активирован — красная карточка.
+            // Сюда же попадает случай «пользователь пришёл через другого
+            // партнёра или органически» — мы намеренно не отличаем его
+            // от idle, чтобы не было соблазна предложить перебитие.
             els.cashbackAvailable.classList.remove('hidden');
             els.storeName.textContent   = store.store_name || store.domain;
             els.cashbackValue.textContent =
@@ -268,11 +291,12 @@ async function handleRefresh() {
 
 /**
  * Универсальный обработчик для кнопок:
- *   #btn-activate        (idle state)
- *   #btn-reactivate      (competing state)
+ *   #btn-activate           (idle state)
  *   #btn-reactivate-expired (expired state)
  *
- * Все три кнопки хранят productId и domain в data-атрибутах.
+ * Обе кнопки инициируют НОВЫЙ заход через savelloclub.ru — это
+ * легитимная пользовательская активация (новый трафик), а не
+ * перебитие существующей чужой сессии.
  */
 async function handleActivate(btn) {
     const productId = parseInt(btn.dataset.productId, 10);
@@ -290,6 +314,13 @@ async function handleActivate(btn) {
             productId,
             domain,
         });
+
+        if (result && result.error === 'no_consent') {
+            // Согласие не получено — открываем онбординг и закрываем попап.
+            await sendMessage({ type: 'OPEN_ONBOARDING' });
+            window.close();
+            return;
+        }
 
         if (result.error) {
             throw new Error(result.error);
@@ -310,7 +341,6 @@ async function handleActivate(btn) {
 
         // Переключаем на состояние "активирован" независимо от исходного состояния
         els.cashbackAvailable.classList.add('hidden');
-        els.cashbackCompeting.classList.add('hidden');
         els.cashbackExpired.classList.add('hidden');
         els.cashbackActivated.classList.remove('hidden');
 

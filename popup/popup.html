@@ -12,6 +12,28 @@
       <div class="spinner"></div>
     </div>
 
+    <!-- Не пройден онбординг (нет consent) -->
+    <div id="screen-consent" class="screen hidden">
+      <div class="header">
+        <div class="logo">
+          <img src="../icons/savello-club-logo-color-site.svg" width="32" height="32" alt="Савелло Клуб" />
+          <span class="logo-text">Кэшбэк Сервис Савелло Клуб</span>
+        </div>
+      </div>
+      <div class="consent-content">
+        <div class="consent-icon">&#128075;</div>
+        <p class="consent-title">Расширение ещё не активировано</p>
+        <p class="consent-text">
+          Чтобы расширение могло показывать статус кэшбэка и активировать его по вашему клику, пройдите короткий
+          онбординг и подтвердите согласие на обработку данных.
+        </p>
+        <button id="btn-open-onboarding" class="btn btn-primary btn-full">Открыть онбординг</button>
+        <a id="consent-policy-link" href="#" target="_blank" rel="noopener" class="consent-policy-link"
+          >Политика обработки данных</a
+        >
+      </div>
+    </div>
+
     <!-- Не авторизован -->
     <div id="screen-auth" class="screen hidden">
       <div class="header">
@@ -105,24 +127,6 @@
           </div>
         </div>
 
-        <!-- Состояние: кэшбэк сброшен конкурирующей ссылкой (competing — красная иконка) -->
-        <div id="cashback-competing" class="cashback-card cashback-competing hidden">
-          <div class="cashback-info">
-            <span class="cashback-badge">&#9888;&#65039;</span>
-            <div class="cashback-details">
-              <span class="cashback-store" id="competing-store-name"></span>
-              <span class="cashback-status-text competing"
-                ><strong
-                  >Вы перешли через другого партнёра, чтобы получить кэшбэк у нас, активируйте его
-                  снова.</strong
-                ></span
-              >
-              <span class="cashback-status-text competing"><strong></strong></span>
-            </div>
-          </div>
-          <button id="btn-reactivate" class="btn btn-reactivate">Активировать снова</button>
-        </div>
-
         <!-- Состояние: время активации истекло (expired — красная иконка) -->
         <div id="cashback-expired" class="cashback-card cashback-expired hidden">
           <div class="cashback-info">
@@ -160,6 +164,12 @@
         <div id="transactions-list" class="transactions-list">
           <div class="transactions-empty">Нет транзакций</div>
         </div>
+      </div>
+
+      <!-- Disclosure: affiliate-расширение, ссылка на политику. Требование Chrome Web Store Affiliate Ads Policy. -->
+      <div class="disclosure-footer">
+        Это аффилиатное расширение savelloclub.ru. Активация — только по вашему клику.
+        <a id="footer-policy-link" href="#" target="_blank" rel="noopener">Политика обработки данных</a>
       </div>
     </div>
 

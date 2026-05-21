@@ -143,6 +143,45 @@ a.user-name:focus-visible {
     to { transform: rotate(360deg); }
 }
 
+/* ─── Consent Screen ─── */
+
+.consent-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 24px 24px;
+    gap: 14px;
+}
+
+.consent-icon {
+    font-size: 48px;
+    line-height: 1;
+}
+
+.consent-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #242424;
+    text-align: center;
+}
+
+.consent-text {
+    text-align: center;
+    color: #707070;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.consent-policy-link {
+    font-size: 12px;
+    color: #4555e8;
+    text-decoration: none;
+}
+
+.consent-policy-link:hover {
+    text-decoration: underline;
+}
+
 /* ─── Auth Screen ─── */
 
 .auth-content {
@@ -246,20 +285,6 @@ a.user-name:focus-visible {
 
 .btn-activate:hover {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
-}
-
-/* Кнопка повторной активации (competing) — оранжевая */
-.btn-reactivate {
-    background: linear-gradient(135deg, #d68910, #b7770d);
-    color: #fff;
-    width: 100%;
-    padding: 12px;
-    font-size: 15px;
-    border-radius: 10px;
-}
-
-.btn-reactivate:hover {
-    background: linear-gradient(135deg, #f39c12, #d68910);
 }
 
 .btn-activate.loading {
@@ -380,12 +405,6 @@ a.user-name:focus-visible {
     gap: 8px;
 }
 
-/* Competing: активация сброшена чужим сайтом */
-.cashback-competing {
-    background: #f5f5f5;
-    border: 1px solid rgba(243, 156, 18, 0.35);
-}
-
 /* Expired: время активации истекло */
 .cashback-expired {
     background: #f5f5f5;
@@ -426,10 +445,6 @@ a.user-name:focus-visible {
     font-size: 15px;
     font-weight: 600;
     color: #27ae60;
-}
-
-.cashback-status-text.competing {
-    color: #f35212;
 }
 
 .cashback-status-text.expired {
@@ -730,6 +745,26 @@ a.user-name:focus-visible {
 
 .promo-card__goto:active {
     transform: translateY(0);
+}
+
+/* ─── Disclosure footer ─── */
+
+.disclosure-footer {
+    padding: 10px 16px 14px;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #909090;
+    text-align: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.disclosure-footer a {
+    color: #4555e8;
+    text-decoration: none;
+}
+
+.disclosure-footer a:hover {
+    text-decoration: underline;
 }
 
 /* ─── Scrollbar ─── */

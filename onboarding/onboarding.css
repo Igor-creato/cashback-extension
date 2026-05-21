@@ -1,0 +1,165 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: #f3f4fb;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #242424;
+    line-height: 1.5;
+    padding: 40px 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.card {
+    max-width: 640px;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 24px 60px -32px rgba(15, 18, 34, 0.18);
+    padding: 36px 36px 32px;
+}
+
+.card__header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.card__logo {
+    margin-bottom: 14px;
+}
+
+.card__title {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #1a1d34;
+}
+
+.card__subtitle {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #6a6e85;
+}
+
+.block {
+    margin-bottom: 22px;
+}
+
+.block--policy {
+    margin-bottom: 26px;
+}
+
+.block__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1d34;
+    margin-bottom: 8px;
+}
+
+.block__text {
+    font-size: 14px;
+    color: #353957;
+}
+
+.block__list {
+    list-style: disc;
+    padding-left: 20px;
+    color: #353957;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.block__list code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    background: rgba(69, 85, 232, 0.08);
+    color: #4555e8;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+a {
+    color: #4555e8;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+    font-family: inherit;
+}
+
+.btn--primary {
+    background: #4555e8;
+    color: #fff;
+}
+
+.btn--primary:hover {
+    background: #5b6cf7;
+    transform: translateY(-1px);
+}
+
+.btn--secondary {
+    background: #ffffff;
+    color: #4555e8;
+    border-color: #c5cbf5;
+}
+
+.btn--secondary:hover {
+    background: #eef0ff;
+}
+
+.declined-hint {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #6a6e85;
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+@media (max-width: 520px) {
+    body {
+        padding: 20px 12px;
+    }
+
+    .card {
+        padding: 24px 20px;
+    }
+
+    .actions {
+        flex-direction: column;
+    }
+}
